@@ -1,6 +1,6 @@
-# Simple Ollama Web UI
+# Enhanced Ollama Web UI
 
-A lightweight, single-file HTML web interface for interacting with your locally running Ollama instance. Chat with different models, view responses in real-time, and easily copy generated code snippets.
+A feature-rich, single-file HTML web interface for interacting with your locally running Ollama instance. Chat with different models, view responses in real-time, save conversations, and customize model parameters.
 
 <!-- Optional: Add a screenshot of the UI in action -->
 <!-- ![Screenshot](link/to/your/screenshot.png) -->
@@ -10,11 +10,16 @@ A lightweight, single-file HTML web interface for interacting with your locally 
 *   **Connects to Local Ollama:** Interacts directly with the Ollama API running on your machine (default: `http://localhost:11434`).
 *   **Model Selection:** Automatically fetches and lists your locally available Ollama models in a dropdown.
 *   **Streaming Responses:** Displays model responses token-by-token as they are generated.
-*   **Conversation History:** Maintains context by sending the previous messages back to the model.
+*   **Persistent Conversation History:** Saves conversations to localStorage so they persist between sessions.
+*   **Dark/Light Mode:** Toggle between dark and light themes with a single click.
+*   **Model Parameters Control:** Adjust temperature, top_p, and max tokens to customize model responses.
+*   **System Prompt Support:** Set custom system prompts to guide the model's behavior.
+*   **Conversation Management:** Create, rename, delete, and switch between multiple conversations.
+*   **Export/Import Conversations:** Save conversations to files and load them back later.
 *   **Code Block Detection:** Automatically identifies Markdown code blocks (``` ... ```) in the model's response.
 *   **Copy Code Button:** Adds a convenient "Copy" button next to each detected code block.
 *   **Simple Deployment:** Runs entirely within a single HTML file – no server-side code or complex setup required (besides Ollama itself).
-*   **Basic Responsive UI:** Designed to be usable on different screen sizes.
+*   **Responsive UI:** Designed to be usable on different screen sizes.
 
 ## Prerequisites
 
@@ -27,11 +32,24 @@ Before you can use this UI, you need:
 
 ## How to Use
 
-1.  **Ensure Ollama is Running:** Open your terminal and run `ollama serve`. Keep it running in the background.
-2.  **Download:** Download the main HTML file (e.g., `ollama_ui.html`) from the [repository](https://github.com/IBATMANSINGH/Ollama-Chat-UI).
-3.  **Open:** Open the downloaded HTML file directly in your web browser (usually by double-clicking it or using `File > Open File...`).
+1.  **Ensure Ollama is Running with CORS Headers:**
+    - To avoid browser security restrictions, run Ollama with CORS headers enabled
+    - Use the included `run_ollama_with_cors.bat` file, or
+    - Run this command in your terminal: `set OLLAMA_ORIGINS=* && ollama serve` (Windows) or `OLLAMA_ORIGINS="*" ollama serve` (Mac/Linux)
+
+2.  **Download:** Download the files from the [repository](https://github.com/IBATMANSINGH/Ollama-Chat-UI).
+
+3.  **Open:** Open the `index.html` file directly in your web browser (usually by double-clicking it or using `File > Open File...`).
+
 4.  **Select Model:** Choose one of your installed models from the dropdown menu at the top.
-5.  **Chat:** Type your message in the input box at the bottom and press Enter or click "Send".
+
+5.  **Customize Settings:** Click the ⚙️ button to adjust model parameters like temperature and system prompt.
+
+6.  **Manage Conversations:** Use the "Conversations" button to create, rename, delete, or switch between conversations.
+
+7.  **Chat:** Type your message in the input box at the bottom and press Enter or click "Send".
+
+8.  **Export/Import:** Use the buttons at the bottom of the conversations sidebar to save or restore your chat history.
 
 ## Configuration
 
@@ -48,13 +66,31 @@ Before you can use this UI, you need:
 *   **JavaScript:** Application logic, API interaction (Fetch API), DOM manipulation, clipboard access.
 *   **Ollama API:** Backend interaction for model listing and chat generation.
 
+## Troubleshooting
+
+### CORS Errors
+
+If you see errors like "Access to fetch at 'http://localhost:11434/api/version' has been blocked by CORS policy", you need to run Ollama with CORS headers enabled:
+
+1. Close any running Ollama instances
+2. Run the included `run_ollama_with_cors.bat` file, or
+3. Run this command in your terminal:
+   - Windows: `set OLLAMA_ORIGINS=* && ollama serve`
+   - Mac/Linux: `OLLAMA_ORIGINS="*" ollama serve`
+
+### No Models Showing
+
+If no models appear in the dropdown:
+
+1. Make sure Ollama is running with `ollama serve`
+2. Check if you have any models installed with `ollama list`
+3. If no models are installed, pull one with `ollama pull llama3` or another model of your choice
+
 ## Limitations & Known Issues
 
-*   **Basic UI:** The interface is functional but minimalist.
 *   **Simple Code Detection:** Uses regex to find ``` blocks; might not handle nested or unusual Markdown perfectly.
-*   **No Persistent History:** Chat history is lost when the page is closed or refreshed.
 *   **Basic Error Handling:** Error messages are displayed, but recovery options are limited.
-*   **No Advanced Ollama Features:** Doesn't expose options like temperature, system prompts, etc.
+*   **Limited Markdown Support:** Only code blocks are specially formatted; other markdown elements are displayed as plain text.
 
 ## Contributing
 
