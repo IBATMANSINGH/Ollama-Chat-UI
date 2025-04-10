@@ -114,8 +114,18 @@ function createNewConversation() {
     updateConversationUI();
     updateConversationsList();
 
-    // Close the sidebar if it's open
-    conversationsSidebar.classList.remove('show');
+    // Close the sidebar and overlay if they're open
+    document.getElementById('conversationsSidebar').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+
+    // Focus on the input field
+    setTimeout(() => {
+        const userInput = document.getElementById('userInput');
+        if (userInput) userInput.focus();
+    }, 100);
+
+    // Show toast notification
+    showToast('New conversation started');
 }
 
 function updateConversationUI() {
@@ -126,21 +136,37 @@ function updateConversationUI() {
 
 function updateConversationsList() {
     const conversationsList = document.getElementById('conversationsList');
+    if (!conversationsList) return;
+
     conversationsList.innerHTML = '';
+
+    // Sort conversations by timestamp (newest first)
+    const sortedConversations = Object.entries(conversations)
+        .sort(([, a], [, b]) => (b.timestamp || 0) - (a.timestamp || 0));
+
+    if (sortedConversations.length === 0) {
+        // Show empty state
+        const emptyState = document.createElement('div');
+        emptyState.className = 'text-center py-4';
+        emptyState.innerHTML = `
+            <div class="mb-3">
+                <i class="bi bi-chat-square-text text-muted" style="font-size: 2rem;"></i>
+            </div>
+            <p class="text-muted">No conversations yet</p>
+            <p class="small text-muted">Start a new chat to begin</p>
+        `;
+        conversationsList.appendChild(emptyState);
+        return;
+    }
 
     // Create a list group container
     const listGroup = document.createElement('div');
     listGroup.classList.add('list-group', 'list-group-flush');
     conversationsList.appendChild(listGroup);
 
-    // Sort conversations by timestamp (newest first)
-    const sortedConversations = Object.entries(conversations)
-        .sort(([, a], [, b]) => (b.timestamp || 0) - (a.timestamp || 0));
-
     sortedConversations.forEach(([id, conversation]) => {
-        const item = document.createElement('a');
-        item.href = '#';
-        item.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
+        const item = document.createElement('div');
+        item.classList.add('conversation-item', 'p-2', 'mb-2');
         if (id === activeConversationId) {
             item.classList.add('active');
         }
@@ -149,28 +175,56 @@ function updateConversationsList() {
         const nameContainer = document.createElement('div');
         nameContainer.classList.add('d-flex', 'flex-column');
 
+        // Add timestamp
+        const timestamp = conversation.timestamp ? new Date(conversation.timestamp) : new Date();
+        const formattedDate = timestamp.toLocaleDateString(undefined, { month: 'short', day: 'numeric' });
+
+        const header = document.createElement('div');
+        header.classList.add('d-flex', 'justify-content-between', 'align-items-center', 'mb-1');
+
         const nameSpan = document.createElement('span');
         nameSpan.textContent = conversation.name || 'Unnamed Conversation';
-        nameSpan.classList.add('conversation-name', 'text-truncate');
+        nameSpan.classList.add('conversation-name', 'fw-medium');
+
+        const dateSpan = document.createElement('small');
+        dateSpan.textContent = formattedDate;
+        dateSpan.classList.add('text-muted');
+
+        header.appendChild(nameSpan);
+        header.appendChild(dateSpan);
+        nameContainer.appendChild(header);
+
+        // Add preview of last message if available
+        if (conversation.messages && conversation.messages.length > 0) {
+            const lastMessage = conversation.messages[conversation.messages.length - 1];
+            const preview = document.createElement('small');
+            preview.classList.add('text-truncate', 'd-block', 'text-muted');
+
+            // Truncate message to 50 characters
+            let previewText = lastMessage.content;
+            if (previewText.length > 50) {
+                previewText = previewText.substring(0, 50) + '...';
+            }
+
+            preview.textContent = `${lastMessage.role === 'user' ? 'You: ' : ''}${previewText}`;
+            nameContainer.appendChild(preview);
+        }
 
         // Add model badge if available
         if (conversation.model) {
-            const modelBadge = document.createElement('small');
-            modelBadge.classList.add('badge', 'bg-secondary', 'mt-1');
-            modelBadge.textContent = conversation.model;
-            nameContainer.appendChild(nameSpan);
+            const modelBadge = document.createElement('div');
+            modelBadge.classList.add('badge', 'bg-secondary', 'mt-2', 'align-self-start');
+            modelBadge.innerHTML = `<i class="bi bi-cpu me-1"></i>${conversation.model}`;
             nameContainer.appendChild(modelBadge);
-        } else {
-            nameContainer.appendChild(nameSpan);
         }
 
         // Create the actions container
         const actionsDiv = document.createElement('div');
-        actionsDiv.classList.add('btn-group', 'btn-group-sm');
+        actionsDiv.classList.add('conversation-actions');
 
         // Create rename button
         const renameBtn = document.createElement('button');
-        renameBtn.classList.add('btn', 'btn-outline-secondary');
+        renameBtn.classList.add('btn', 'btn-sm', 'btn-icon');
         renameBtn.innerHTML = '<i class="bi bi-pencil"></i>';
         renameBtn.title = 'Rename conversation';
         renameBtn.onclick = (e) => {
@@ -180,7 +234,7 @@ function updateConversationsList() {
 
         // Create delete button
         const deleteBtn = document.createElement('button');
-        deleteBtn.classList.add('btn', 'btn-outline-danger');
+        deleteBtn.classList.add('btn', 'btn-sm', 'btn-icon', 'text-danger');
         deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
         deleteBtn.title = 'Delete conversation';
         deleteBtn.onclick = (e) => {
@@ -192,13 +246,16 @@ function updateConversationsList() {
         actionsDiv.appendChild(renameBtn);
         actionsDiv.appendChild(deleteBtn);
 
-        // Add elements to the conversation item
-        item.appendChild(nameContainer);
-        item.appendChild(actionsDiv);
+        const itemContent = document.createElement('div');
+        itemContent.classList.add('d-flex', 'justify-content-between', 'align-items-start', 'w-100');
+        itemContent.appendChild(nameContainer);
+        itemContent.appendChild(actionsDiv);
+
+        item.appendChild(itemContent);
 
         // Add click handler to load the conversation
         item.addEventListener('click', (e) => {
-            e.preventDefault();
+            if (e.target.closest('.conversation-actions')) return;
             loadConversation(id);
         });
 
@@ -250,8 +307,12 @@ function loadConversation(id) {
         }
     }
 
-    // Close the sidebar
-    conversationsSidebar.classList.remove('show');
+    // Close the sidebar and overlay
+    document.getElementById('conversationsSidebar').classList.remove('show');
+    document.getElementById('overlay').classList.remove('show');
+
+    // Show toast notification
+    showToast(`Loaded conversation: ${conversations[id].name || 'Unnamed Conversation'}`);
 }
 
 function renameConversation(id) {
