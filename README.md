@@ -96,7 +96,7 @@ If no models appear in the dropdown:
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/IBATMANSINGH/Ollama-Chat-UI/issues) if you want to contribute.
 
-### 🤖 AI-Assisted Development Process
+## 🤖 AI-Assisted Development Process
 
 This project was built using a "prompt-first" approach, where I leveraged an LLM as a coding co-pilot to translate a concept into a functional application.
 
