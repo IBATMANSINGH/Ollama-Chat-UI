@@ -96,12 +96,27 @@ If no models appear in the dropdown:
 
 Contributions, issues, and feature requests are welcome! Feel free to check the [issues page](https://github.com/IBATMANSINGH/Ollama-Chat-UI/issues) if you want to contribute.
 
+### 🤖 AI-Assisted Development Process
+
+This project was built using a "prompt-first" approach, where I leveraged an LLM as a coding co-pilot to translate a concept into a functional application.
+
+*   **The Core Prompt:** I began by architecting the project with a high-level prompt to create the application's structure:
+    > *"Build a chat application using Streamlit that interacts with a locally running Ollama model. The UI should have a chat input box at the bottom and a conversation history display area. The app needs to maintain the session state to remember the conversation history."*
+
+*   **Iteration and Refinement:** The AI generated the basic Streamlit UI. I then used follow-up prompts to connect it to the backend and improve the user experience:
+    *   "Write the Python code to make an API call to the local Ollama server's `/api/generate` endpoint."
+    *   "Implement logic to store and display the chat history using Streamlit's `st.session_state`."
+    *   "Create a 'Clear Chat' button that resets the conversation history."
+
+*   **My Role as the Developer:** My primary role was not just to code, but to act as the architect. This involved designing the prompts, critically evaluating and debugging the AI-generated code, managing the application's state, and ensuring a seamless, real-time chat experience for the user.
+
 ## License
 
 This project is licensed under the **MIT License**.
 
+## Author
+Made With Vibes & ❤️ By Ankit Singh
+
 ---
 
-**Recommendation:**
 
-For the license to be fully effective, you should also add a file named `LICENSE` (or `LICENSE.md`) to the root of your repository containing the full text of the MIT License. You can easily find the standard MIT License text online, for example, at the [Open Source Initiative](https://opensource.org/licenses/MIT). Just copy and paste that text into your `LICENSE` file.
